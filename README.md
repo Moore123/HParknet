@@ -10,4 +10,5 @@ For questions or issues please use the [Google Group](https://groups.google.com/
 
 
 # HParknet
-a bits change for huge parameters( each layer limit by GPU memory ) and parallelized training ( by remote parameters server ), original source fork from darknet
+a bits change for huge parameters( each layer limit by GPU memory ) and parallelized training ( update parameters to remote parameter server ), original source code forked from darknet
+
