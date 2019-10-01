@@ -14,6 +14,9 @@ void update_lstm_layer(layer l, update_args a);
 #ifdef GPU
 void forward_lstm_layer_gpu(layer l, network net);
 void backward_lstm_layer_gpu(layer l, network net);
+void gpu_load_lstm_layer(layer l, network net);
+void gpu_unload_lstm_layer(layer l, network net);
+
 void update_lstm_layer_gpu(layer l, update_args a); 
 
 #endif

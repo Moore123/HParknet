@@ -72,6 +72,8 @@ layer make_crnn_layer(int batch, int h, int w, int c, int hidden_filters, int ou
     l.forward_gpu = forward_crnn_layer_gpu;
     l.backward_gpu = backward_crnn_layer_gpu;
     l.update_gpu = update_crnn_layer_gpu;
+    l.gpu_load = gpu_load_crnn_layer;
+    l.gpu_unload = gpu_unload_crnn_layer;
 
     l.state_gpu = cuda_make_array(l.state, l.hidden*batch*(steps+1));
     l.output_gpu = l.output_layer->output_gpu;
@@ -280,4 +282,15 @@ void backward_crnn_layer_gpu(layer l, network net)
         increment_layer(&output_layer, -1);
     }
 }
+
+void gpu_load_crnn_layer(layer l, network net) {
+    l.state_gpu = cuda_make_array(l.state, l.hidden*l.batch*(l.steps+1));
+}
+
+void gpu_unload_crnn_layer(layer l, network net) {
+    cuda_push_array(l.state_gpu, l.state, l.hidden*l.batch*(l.steps+1));
+    cuda_free(l.state_gpu);
+}
+
+
 #endif

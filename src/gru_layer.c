@@ -90,6 +90,8 @@ layer make_gru_layer(int batch, int inputs, int outputs, int steps, int batch_no
     l.forward_gpu = forward_gru_layer_gpu;
     l.backward_gpu = backward_gru_layer_gpu;
     l.update_gpu = update_gru_layer_gpu;
+    l.gpu_load = gpu_load_gru_layer;
+    l.gpu_unload = gpu_unload_gru_layer;
 
     l.forgot_state_gpu = cuda_make_array(0, batch*outputs);
     l.forgot_delta_gpu = cuda_make_array(0, batch*outputs);
@@ -402,4 +404,39 @@ void backward_gru_layer_gpu(layer l, network net)
     }
     copy_gpu(l.outputs*l.batch, end_state, 1, l.state_gpu, 1);
 }
+
+void gpu_load_gru_layer( layer l , network net) {
+    l.forgot_state_gpu = cuda_make_array(l.forgot_state, l.batch*l.outputs);
+    l.forgot_delta_gpu = cuda_make_array(l.forgot_delta, l.batch*l.outputs);
+    l.prev_state_gpu = cuda_make_array(l.prev_state, l.batch*l.outputs);
+    l.state_gpu = cuda_make_array(l.state, l.batch*l.outputs);
+    l.output_gpu = cuda_make_array(l.output, l.batch*l.outputs*l.steps);
+    l.delta_gpu = cuda_make_array(l.delta, l.batch*l.outputs*l.steps);
+    l.r_gpu = cuda_make_array(l.r_cpu, l.batch*l.outputs);
+    l.z_gpu = cuda_make_array(l.z_cpu, l.batch*l.outputs);
+    l.h_gpu = cuda_make_array(l.h_cpu, l.batch*l.outputs);
+}
+
+void gpu_unload_gru_layer( layer l , network net) {
+	cuda_pull_array(l.forgot_state_gpu, l.forgot_state, l.batch*l.outputs);
+	cuda_pull_array(l.forgot_delta_gpu, l.forgot_delta, l.batch*l.outputs);
+	cuda_pull_array(l.prev_state_gpu, l.prev_state, l.batch*l.outputs);
+	cuda_pull_array(l.state_gpu, l.state, l.batch*l.outputs);
+	cuda_pull_array(l.output_gpu, l.output, l.batch*l.outputs*l.steps);
+	cuda_pull_array(l.delta_gpu, l.delta, l.batch*l.outputs*l.steps);
+	cuda_pull_array(l.r_gpu, l.r_cpu, l.batch*l.outputs);
+	cuda_pull_array(l.z_gpu, l.z_cpu, l.batch*l.outputs);
+	cuda_pull_array(l.h_gpu, l.h_cpu, l.batch*l.outputs);
+
+	cuda_free(l.forgot_state_gpu);
+	cuda_free(l.forgot_delta_gpu);
+	cuda_free(l.prev_state_gpu);
+	cuda_free(l.state_gpu);
+	cuda_free(l.output_gpu);
+	cuda_free(l.delta_gpu);
+	cuda_free(l.r_gpu);
+	cuda_free(l.z_gpu);
+	cuda_free(l.h_gpu);
+}
+
 #endif

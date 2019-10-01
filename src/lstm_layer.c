@@ -105,6 +105,8 @@ layer make_lstm_layer(int batch, int inputs, int outputs, int steps, int batch_n
     l.forward_gpu = forward_lstm_layer_gpu;
     l.backward_gpu = backward_lstm_layer_gpu;
     l.update_gpu = update_lstm_layer_gpu;
+    l.gpu_load = gpu_load_lstm_layer;
+    l.gpu_unload = gpu_unload_lstm_layer;
 
     l.output_gpu = cuda_make_array(0, batch*outputs*steps);
     l.delta_gpu = cuda_make_array(0, batch*l.outputs*steps);
@@ -622,5 +624,66 @@ void backward_lstm_layer_gpu(layer l, network state)
         increment_layer(&ug, -1);
         increment_layer(&uo, -1);
     }
+}
+
+void gpu_load_lstm_layer(layer l, network net) {
+    l.output_gpu = cuda_make_array(l.output, l.batch*l.outputs*l.steps);
+    l.delta_gpu = cuda_make_array(l.delta, l.batch*l.outputs*l.steps);
+
+    l.prev_state_gpu = cuda_make_array(l.prev_state_cpu, l.batch*l.outputs);
+    l.prev_cell_gpu = cuda_make_array(l.prev_cell_cpu, l.batch*l.outputs);
+    l.cell_gpu = cuda_make_array(l.cell_gpu, l.batch*l.outputs*l.steps);
+
+    l.f_gpu = cuda_make_array(l.f_cpu, l.batch*l.outputs);
+    l.i_gpu = cuda_make_array(l.i_cpu, l.batch*l.outputs);
+    l.g_gpu = cuda_make_array(l.g_cpu, l.batch*l.outputs);
+    l.o_gpu = cuda_make_array(l.o_cpu, l.batch*l.outputs);
+    l.c_gpu = cuda_make_array(l.c_cpu, l.batch*l.outputs);
+    l.h_gpu = cuda_make_array(l.h_cpu, l.batch*l.outputs);
+    l.temp_gpu =  cuda_make_array(l.temp_cpu, l.batch*l.outputs);
+    l.temp2_gpu = cuda_make_array(l.temp2_cpu, l.batch*l.outputs);
+    l.temp3_gpu = cuda_make_array(l.temp3_cpu, l.batch*l.outputs);
+    l.dc_gpu = cuda_make_array(l.dc_cpu, l.batch*l.outputs);
+    l.dh_gpu = cuda_make_array(l.dh_cpu, l.batch*l.outputs);
+}
+
+void gpu_unload_lstm_layer(layer l, network net) {
+	cuda_pull_array(l.output_gpu, l.output, l.batch*l.outputs*l.steps);
+	cuda_pull_array(l.delta_gpu, l.delta, l.batch*l.outputs*l.steps);
+
+	cuda_pull_array(l.prev_state_gpu, l.prev_state_cpu, l.batch*l.outputs);
+	cuda_pull_array(l.prev_cell_gpu, l.prev_cell_cpu, l.batch*l.outputs);
+	cuda_pull_array(l.cell_gpu, l.cell_gpu, l.batch*l.outputs*l.steps);
+
+	cuda_pull_array(l.f_gpu, l.f_cpu, l.batch*l.outputs);
+	cuda_pull_array(l.i_gpu, l.i_cpu, l.batch*l.outputs);
+	cuda_pull_array(l.g_gpu, l.g_cpu, l.batch*l.outputs);
+	cuda_pull_array(l.o_gpu, l.o_cpu, l.batch*l.outputs);
+	cuda_pull_array(l.c_gpu, l.c_cpu, l.batch*l.outputs);
+	cuda_pull_array(l.h_gpu, l.h_cpu, l.batch*l.outputs);
+	cuda_pull_array(l.temp_gpu, l.temp_cpu, l.batch*l.outputs);
+	cuda_pull_array(l.temp2_gpu, l.temp2_cpu, l.batch*l.outputs);
+	cuda_pull_array(l.temp3_gpu, l.temp3_cpu, l.batch*l.outputs);
+	cuda_pull_array(l.dc_gpu, l.dc_cpu, l.batch*l.outputs);
+	cuda_pull_array(l.dh_gpu, l.dh_cpu, l.batch*l.outputs);
+
+	cuda_free(l.output_gpu);
+	cuda_free(l.delta_gpu);
+
+	cuda_free(l.prev_state_gpu);
+	cuda_free(l.prev_cell_gpu);
+	cuda_free(l.cell_gpu);
+
+	cuda_free(l.f_gpu);
+	cuda_free(l.i_gpu);
+	cuda_free(l.g_gpu);
+	cuda_free(l.o_gpu);
+	cuda_free(l.c_gpu);
+	cuda_free(l.h_gpu);
+	cuda_free(l.temp_gpu);
+	cuda_free(l.temp2_gpu);
+	cuda_free(l.temp3_gpu);
+	cuda_free(l.dc_gpu);
+	cuda_free(l.dh_gpu);
 }
 #endif

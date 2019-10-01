@@ -80,6 +80,9 @@ LDFLAGS+= -lstdc++
 OBJ+=convolutional_kernels.o deconvolutional_kernels.o activation_kernels.o im2col_kernels.o col2im_kernels.o blas_kernels.o crop_layer_kernels.o dropout_layer_kernels.o maxpool_layer_kernels.o avgpool_layer_kernels.o
 endif
 
+TOBJ=tmain.o
+TESTOBJ = $(addprefix $(OBJDIR), $(TOBJ))
+
 EXECOBJ = $(addprefix $(OBJDIR), $(EXECOBJA))
 OBJS = $(addprefix $(OBJDIR), $(OBJ))
 DEPS = $(wildcard src/*.h) Makefile include/darknet.h
@@ -105,6 +108,9 @@ $(OBJDIR)%.o: %.c $(DEPS)
 
 $(OBJDIR)%.o: %.cu $(DEPS)
 	$(NVCC) $(ARCH) $(COMMON) --compiler-options "$(CFLAGS)" -c $< -o $@
+
+tmain: $(TESTOBJ) $(SLIB)
+	$(CC) $(COMMON) -I./include/ $(CFLAGS) $^ -o $@ $(LDFLAGS) $(SLIB) -L./ -ldarknet
 
 obj:
 	mkdir -p obj

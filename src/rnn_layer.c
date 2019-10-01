@@ -65,6 +65,8 @@ layer make_rnn_layer(int batch, int inputs, int outputs, int steps, ACTIVATION a
     l.forward_gpu = forward_rnn_layer_gpu;
     l.backward_gpu = backward_rnn_layer_gpu;
     l.update_gpu = update_rnn_layer_gpu;
+    l.gpu_load = gpu_load_rnn_layer;
+    l.gpu_unload = gpu_unload_rnn_layer;
 
     l.state_gpu = cuda_make_array(0, batch*outputs);
     l.prev_state_gpu = cuda_make_array(0, batch*outputs);
@@ -290,4 +292,17 @@ void backward_rnn_layer_gpu(layer l, network net)
     axpy_gpu(l.outputs * l.batch, 1, last_input, 1, l.state_gpu, 1);
     axpy_gpu(l.outputs * l.batch, 1, last_self, 1, l.state_gpu, 1);
 }
+
+void gpu_load_rnn_layer(layer l, network net) {
+    l.state_gpu = cuda_make_array(l.state, l.batch*l.outputs);
+    l.prev_state_gpu = cuda_make_array(l.prev_state, l.batch*l.outputs);
+}
+
+void gpu_unload_rnn_layer(layer l, network net) {
+    cuda_pull_array(l.state_gpu , l.state, l.batch*l.outputs);
+    cuda_pull_array(l.prev_state_gpu, l.prev_state, l.batch*l.outputs);
+    cuda_free(l.state_gpu);
+    cuda_free(l.prev_state);
+}
+
 #endif
