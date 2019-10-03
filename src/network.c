@@ -759,29 +759,36 @@ float *network_output(network *net)
 
 #ifdef GPU
 void do_load(layer l, network net) {
-#if 0
-        switch() {
-          case LS_INIT:
-            break;
+
+        switch(l.load_state) {
           case LS_CONSITANT:
             break;
+
+          case LS_INIT:
+          case LS_UNLOADED:
+            if ( l.gpu_load ) l.gpu_load(l, net);
+            l.load_state = LS_LOADED;
           default:
-             l.gpu_load(l, net);
+            break;
          }
-#endif
+
 }
+
 void do_unload(layer l, network net) {
-#if 0
-        switch() {
-          case LS_INIT:
-            break;
+
+        switch(l.load_state) {
           case LS_CONSITANT:
             break;
+          
+          case LS_LOADED:
+             if ( l.gpu_unload) l.gpu_unload(l, net);
+             l.load_state = LS_UNLOADED;
           default:
-             l.gpu_unload(l, net);
+             break;
          }
-#endif
+
 }
+
 void forward_network_gpu(network *netp)
 {
     network net = *netp;
@@ -795,6 +802,7 @@ void forward_network_gpu(network *netp)
     for(i = 0; i < net.n; ++i){
         net.index = i;
         layer l = net.layers[i];
+
         if(l.delta_gpu){
             fill_gpu(l.outputs * l.batch, 0, l.delta_gpu, 1);
         }
@@ -806,6 +814,7 @@ void forward_network_gpu(network *netp)
             net.truth_gpu = l.output_gpu;
             net.truth = l.output;
         }
+
        do_unload(l,net); 
     }
     pull_network_output(netp);
@@ -831,7 +840,9 @@ void backward_network_gpu(network *netp)
             net.delta_gpu = prev.delta_gpu;
         }
         net.index = i;
+        do_load(l, net);
         l.backward_gpu(l, net);
+        do_unload(l, net);
     }
 }
 

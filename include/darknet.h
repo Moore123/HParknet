@@ -131,6 +131,7 @@ struct layer{
     void (*forward_gpu)   (struct layer, struct network);
     void (*backward_gpu)  (struct layer, struct network);
     void (*update_gpu)    (struct layer, update_args);
+    LOADEDSTATUS load_state;
     void (*gpu_load)    (struct layer, struct network);
     void (*gpu_unload)  (struct layer, struct network);
     int batch_normalize;
