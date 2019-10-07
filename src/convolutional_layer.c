@@ -263,6 +263,7 @@ convolutional_layer make_convolutional_layer(int batch, int h, int w, int c, int
     l.backward_gpu = backward_convolutional_layer_gpu;
     l.gpu_load = gpu_load_convolutional_layer;
     l.gpu_unload = gpu_unload_convolutional_layer;
+    l.load_state = LS_INIT;
 
     l.update_gpu = update_convolutional_layer_gpu;
 

@@ -627,6 +627,15 @@ void backward_lstm_layer_gpu(layer l, network state)
 }
 
 void gpu_load_lstm_layer(layer l, network net) {
+    do_load_layer(*(l.wf), net);
+    do_load_layer(*(l.wi), net);
+    do_load_layer(*(l.wg), net);
+    do_load_layer(*(l.wo), net);
+    do_load_layer(*(l.uf), net);
+    do_load_layer(*(l.ui), net);
+    do_load_layer(*(l.ug), net);
+    do_load_layer(*(l.uo), net);
+
     l.output_gpu = cuda_make_array(l.output, l.batch*l.outputs*l.steps);
     l.delta_gpu = cuda_make_array(l.delta, l.batch*l.outputs*l.steps);
 
@@ -648,6 +657,15 @@ void gpu_load_lstm_layer(layer l, network net) {
 }
 
 void gpu_unload_lstm_layer(layer l, network net) {
+    do_unload_layer(*(l.wf), net);
+    do_unload_layer(*(l.wi), net);
+    do_unload_layer(*(l.wg), net);
+    do_unload_layer(*(l.wo), net);
+    do_unload_layer(*(l.uf), net);
+    do_unload_layer(*(l.ui), net);
+    do_unload_layer(*(l.ug), net);
+    do_unload_layer(*(l.uo), net);
+
 	cuda_pull_array(l.output_gpu, l.output, l.batch*l.outputs*l.steps);
 	cuda_pull_array(l.delta_gpu, l.delta, l.batch*l.outputs*l.steps);
 

@@ -45,10 +45,11 @@ maxpool_layer make_maxpool_layer(int batch, int h, int w, int c, int size, int s
     l.backward_gpu = backward_maxpool_layer_gpu;
     l.gpu_load = gpu_load_maxpool_layer;
     l.gpu_unload = gpu_load_maxpool_layer;
+    l.load_state = LS_INIT;
 
-    l.indexes_gpu = cuda_make_int_array(0, output_size);
-    l.output_gpu  = cuda_make_array(l.output, output_size);
-    l.delta_gpu   = cuda_make_array(l.delta, output_size);
+    //l.indexes_gpu = cuda_make_int_array(0, output_size);
+    //l.output_gpu  = cuda_make_array(l.output, output_size);
+    //l.delta_gpu   = cuda_make_array(l.delta, output_size);
     #endif
     fprintf(stderr, "max          %d x %d / %d  %4d x%4d x%4d   ->  %4d x%4d x%4d\n", size, size, stride, w, h, c, l.out_w, l.out_h, l.out_c);
     return l;

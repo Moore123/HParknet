@@ -33,9 +33,10 @@ layer make_shortcut_layer(int batch, int index, int w, int h, int c, int w2, int
     l.backward_gpu = backward_shortcut_layer_gpu;
     l.gpu_load = gpu_load_shortcut_layer;
     l.gpu_unload = gpu_unload_shortcut_layer;
-
-    l.delta_gpu =  cuda_make_array(l.delta, l.outputs*batch);
-    l.output_gpu = cuda_make_array(l.output, l.outputs*batch);
+    
+    l.load_state = LS_INIT;
+    // l.delta_gpu =  cuda_make_array(l.delta, l.outputs*batch);
+    // l.output_gpu = cuda_make_array(l.output, l.outputs*batch);
     #endif
     return l;
 }

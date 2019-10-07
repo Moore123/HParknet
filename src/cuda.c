@@ -144,6 +144,37 @@ int *cuda_make_int_array(int *x, size_t n)
     return x_gpu;
 }
 
+void do_load_layer(layer l, network net) {
+
+        switch(l.load_state) {
+          case LS_CONSITANT:
+            break;
+
+          case LS_INIT:
+          case LS_UNLOADED:
+            if ( l.gpu_load ) l.gpu_load(l, net);
+            l.load_state = LS_LOADED;
+          default:
+            break;
+         }
+
+}
+
+void do_unload_layer(layer l, network net) {
+
+        switch(l.load_state) {
+          case LS_CONSITANT:
+            break;
+          
+          case LS_LOADED:
+             if ( l.gpu_unload) l.gpu_unload(l, net);
+             l.load_state = LS_UNLOADED;
+          default:
+             break;
+         }
+
+}
+
 void cuda_free(float *x_gpu)
 {
     cudaError_t status = cudaFree(x_gpu);

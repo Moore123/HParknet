@@ -284,10 +284,18 @@ void backward_crnn_layer_gpu(layer l, network net)
 }
 
 void gpu_load_crnn_layer(layer l, network net) {
+    do_load_layer(*(l.input_layer),  net);
+    do_load_layer(*(l.self_layer),   net);
+    do_load_layer(*(l.output_layer), net);
+
     l.state_gpu = cuda_make_array(l.state, l.hidden*l.batch*(l.steps+1));
 }
 
 void gpu_unload_crnn_layer(layer l, network net) {
+    do_unload_layer(*(l.input_layer),  net);
+    do_unload_layer(*(l.self_layer),   net);
+    do_unload_layer(*(l.output_layer), net);
+
     cuda_push_array(l.state_gpu, l.state, l.hidden*l.batch*(l.steps+1));
     cuda_free(l.state_gpu);
 }

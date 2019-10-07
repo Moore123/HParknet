@@ -67,9 +67,10 @@ layer make_rnn_layer(int batch, int inputs, int outputs, int steps, ACTIVATION a
     l.update_gpu = update_rnn_layer_gpu;
     l.gpu_load = gpu_load_rnn_layer;
     l.gpu_unload = gpu_unload_rnn_layer;
+    l.load_state = LS_INIT;
 
-    l.state_gpu = cuda_make_array(0, batch*outputs);
-    l.prev_state_gpu = cuda_make_array(0, batch*outputs);
+    //l.state_gpu = cuda_make_array(0, batch*outputs);
+    //l.prev_state_gpu = cuda_make_array(0, batch*outputs);
     l.output_gpu = l.output_layer->output_gpu;
     l.delta_gpu = l.output_layer->delta_gpu;
 #ifdef CUDNN
@@ -294,11 +295,29 @@ void backward_rnn_layer_gpu(layer l, network net)
 }
 
 void gpu_load_rnn_layer(layer l, network net) {
+    layer input_layer = *(l.input_layer);
+    layer self_layer = *(l.self_layer);
+    layer output_layer = *(l.output_layer);
+    do_load_layer(input_layer,net);
+    do_load_layer(self_layer,net);
+    do_load_layer(output_layer,net);
+
     l.state_gpu = cuda_make_array(l.state, l.batch*l.outputs);
     l.prev_state_gpu = cuda_make_array(l.prev_state, l.batch*l.outputs);
+
+    l.output_gpu = l.output_layer->output_gpu;
+    l.delta_gpu = l.output_layer->delta_gpu;
 }
 
 void gpu_unload_rnn_layer(layer l, network net) {
+
+    layer input_layer = *(l.input_layer);
+    layer self_layer = *(l.self_layer);
+    layer output_layer = *(l.output_layer);
+    do_unload_layer(input_layer,net);
+    do_unload_layer(self_layer,net);
+    do_unload_layer(output_layer,net);
+
     cuda_pull_array(l.state_gpu , l.state, l.batch*l.outputs);
     cuda_pull_array(l.prev_state_gpu, l.prev_state, l.batch*l.outputs);
     cuda_free(l.state_gpu);

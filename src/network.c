@@ -758,37 +758,6 @@ float *network_output(network *net)
 }
 
 #ifdef GPU
-void do_load(layer l, network net) {
-
-        switch(l.load_state) {
-          case LS_CONSITANT:
-            break;
-
-          case LS_INIT:
-          case LS_UNLOADED:
-            if ( l.gpu_load ) l.gpu_load(l, net);
-            l.load_state = LS_LOADED;
-          default:
-            break;
-         }
-
-}
-
-void do_unload(layer l, network net) {
-
-        switch(l.load_state) {
-          case LS_CONSITANT:
-            break;
-          
-          case LS_LOADED:
-             if ( l.gpu_unload) l.gpu_unload(l, net);
-             l.load_state = LS_UNLOADED;
-          default:
-             break;
-         }
-
-}
-
 void forward_network_gpu(network *netp)
 {
     network net = *netp;
@@ -806,7 +775,7 @@ void forward_network_gpu(network *netp)
         if(l.delta_gpu){
             fill_gpu(l.outputs * l.batch, 0, l.delta_gpu, 1);
         }
-        do_load(l, net);
+        do_load_layer(l, net);
         l.forward_gpu(l, net);
         net.input_gpu = l.output_gpu;
         net.input = l.output;
@@ -815,7 +784,7 @@ void forward_network_gpu(network *netp)
             net.truth = l.output;
         }
 
-       do_unload(l,net); 
+       do_unload_layer(l,net); 
     }
     pull_network_output(netp);
     calc_network_cost(netp);

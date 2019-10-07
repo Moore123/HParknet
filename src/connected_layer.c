@@ -85,6 +85,7 @@ layer make_connected_layer(int batch, int inputs, int outputs, ACTIVATION activa
     l.update_gpu = update_connected_layer_gpu;
     l.gpu_load = gpu_load_connected_layer;
     l.gpu_unload = gpu_unload_connected_layer;
+    l.load_state = LS_INIT;
 
     l.weights_gpu = cuda_make_array(l.weights, outputs*inputs);
     l.biases_gpu = cuda_make_array(l.biases, outputs);
@@ -283,6 +284,40 @@ void gpu_unload_connected_layer(layer l, network net) {
 
 		cuda_pull_array(l.x_gpu ,l.output, l.batch* l.outputs);
 		cuda_pull_array(l.x_norm_gpu ,l.output, l.batch* l.outputs);
+     }
+	cuda_free(l.weights_gpu);
+	cuda_free(l.biases_gpu);
+
+	cuda_free(l.weight_updates_gpu);
+	cuda_free(l.bias_updates_gpu);
+
+	cuda_free(l.output_gpu);
+	cuda_free(l.delta_gpu);
+
+    if (net.adam) {
+		cuda_free(l.m_gpu);
+		cuda_free(l.v_gpu);
+		cuda_free(l.bias_m_gpu);
+		cuda_free(l.bias_v_gpu);
+		cuda_free(l.scale_m_gpu);
+		cuda_free(l.scale_v_gpu);
+	 }
+	
+   if(l.batch_normalize){
+		cuda_free(l.mean_gpu);
+		cuda_free(l.variance_gpu);
+	
+		cuda_free(l.rolling_mean_gpu);
+		cuda_free(l.rolling_variance_gpu);
+
+		cuda_free(l.mean_delta_gpu);
+		cuda_free(l.variance_delta_gpu);
+
+		cuda_free(l.scales_gpu);
+		cuda_free(l.scale_updates_gpu);
+
+		cuda_free(l.x_gpu);
+		cuda_free(l.x_norm_gpu);
      }
 }
 

@@ -208,14 +208,6 @@ void backward_gru_layer(layer l, network net)
 
 #ifdef GPU
 
-void pull_gru_layer(layer l)
-{
-}
-
-void push_gru_layer(layer l)
-{
-}
-
 void update_gru_layer_gpu(layer l, update_args a)
 {
     update_connected_layer_gpu(*(l.ur), a);
@@ -406,6 +398,14 @@ void backward_gru_layer_gpu(layer l, network net)
 }
 
 void gpu_load_gru_layer( layer l , network net) {
+
+    do_load_layer(*(l.ur), net);
+    do_load_layer(*(l.uz), net);
+    do_load_layer(*(l.uh), net);
+    do_load_layer(*(l.wr), net);
+    do_load_layer(*(l.wz), net);
+    do_load_layer(*(l.wh), net);
+
     l.forgot_state_gpu = cuda_make_array(l.forgot_state, l.batch*l.outputs);
     l.forgot_delta_gpu = cuda_make_array(l.forgot_delta, l.batch*l.outputs);
     l.prev_state_gpu = cuda_make_array(l.prev_state, l.batch*l.outputs);
@@ -418,6 +418,14 @@ void gpu_load_gru_layer( layer l , network net) {
 }
 
 void gpu_unload_gru_layer( layer l , network net) {
+
+    do_unload_layer(*(l.ur), net);
+    do_unload_layer(*(l.uz), net);
+    do_unload_layer(*(l.uh), net);
+    do_unload_layer(*(l.wr), net);
+    do_unload_layer(*(l.wz), net);
+    do_unload_layer(*(l.wh), net);
+
 	cuda_pull_array(l.forgot_state_gpu, l.forgot_state, l.batch*l.outputs);
 	cuda_pull_array(l.forgot_delta_gpu, l.forgot_delta, l.batch*l.outputs);
 	cuda_pull_array(l.prev_state_gpu, l.prev_state, l.batch*l.outputs);
