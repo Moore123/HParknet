@@ -150,3 +150,44 @@ void update_deconvolutional_layer_gpu(layer l, update_args a)
     }
 }
 
+extern "C" void gpu_load_deconvolutional_layer(layer l, network net) {
+
+    if(gpu_index >= 0){
+
+        if (net.adam) {
+            l.m_gpu = cuda_make_array(l.m, l.c*l.n*l.size*l.size);
+            l.v_gpu = cuda_make_array(l.v, l.c*l.n*l.size*l.size);
+            l.bias_m_gpu = cuda_make_array(l.bias_m, l.n);
+            l.bias_v_gpu = cuda_make_array(l.bias_v, l.n);
+            l.scale_m_gpu = cuda_make_array(l.scale_m, l.n);
+            l.scale_v_gpu = cuda_make_array(l.scale_v, l.n);
+        }
+        l.weights_gpu = cuda_make_array(l.weights, l.c*l.n*l.size*l.size);
+        l.weight_updates_gpu = cuda_make_array(l.weight_updates, l.c*l.n*l.size*l.size);
+
+        l.biases_gpu = cuda_make_array(l.biases, l.n);
+        l.bias_updates_gpu = cuda_make_array(l.bias_updates, l.n);
+
+        l.delta_gpu = cuda_make_array(l.delta, l.batch*l.out_h*l.out_w*l.n);
+        l.output_gpu = cuda_make_array(l.output, l.batch*l.out_h*l.out_w*l.n);
+
+        if(l.batch_normalize){
+            l.mean_gpu = cuda_make_array(0, l.n);
+            l.variance_gpu = cuda_make_array(0, l.n);
+
+            l.rolling_mean_gpu = cuda_make_array(0, l.n);
+            l.rolling_variance_gpu = cuda_make_array(0, l.n);
+
+            l.mean_delta_gpu = cuda_make_array(0, l.n);
+            l.variance_delta_gpu = cuda_make_array(0, l.n);
+
+            l.scales_gpu = cuda_make_array(l.scales, l.n);
+            l.scale_updates_gpu = cuda_make_array(0, l.n);
+
+            l.x_gpu = cuda_make_array(0, l.batch*l.out_h*l.out_w*l.n);
+            l.x_norm_gpu = cuda_make_array(0, l.batch*l.out_h*l.out_w*l.n);
+        }
+    }
+
+}
+

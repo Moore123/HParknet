@@ -652,6 +652,15 @@ learning_rate_policy get_policy(char *s)
     return CONSTANT;
 }
 
+gpu_memory_pattern get_pattern(char *s)
+{
+    if (strcmp(s, "original")==0) return ORIGINAL;
+    if (strcmp(s, "layerload")==0) return LAYERLOAD;
+    if (strcmp(s, "stream")==0) return STREAM;
+    fprintf(stderr, "Couldn't find memory pattern %s, going with original\n", s);
+    return ORIGINAL;
+}
+
 void parse_net_options(list *options, network *net)
 {
     net->batch = option_find_int(options, "batch",1);
@@ -665,6 +674,13 @@ void parse_net_options(list *options, network *net)
     net->batch *= net->time_steps;
     net->subdivisions = subdivs;
     net->random = option_find_int_quiet(options, "random", 0);
+//FIXME append options for global parameters and etc.
+//      memory pattern: original, layerload, stream,  with..remoteps
+//      ps update : max min average midval
+#ifdef GPU
+    char *mmpp = option_find_str(options, "pattern", "original")
+    net->gpu_memory_pattern = get_pattern(mmpp);
+#endif
 
     net->adam = option_find_int_quiet(options, "adam", 0);
     if(net->adam){

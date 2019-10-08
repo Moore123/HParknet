@@ -439,6 +439,10 @@ typedef enum {
     CONSTANT, STEP, EXP, POLY, STEPS, SIG, RANDOM
 } learning_rate_policy;
 
+typedef enum {
+    ORIGINAL, LAYERLOAD, STREAM, REMOTEPS
+} gpu_memory_pattern ;
+
 typedef struct network{
     int n;
     int batch;
@@ -503,6 +507,7 @@ typedef struct network{
     float *truth_gpu;
     float *delta_gpu;
     float *output_gpu;
+    gpu_memory_pattern gpumm_pattern;    
 #endif
 
 } network;

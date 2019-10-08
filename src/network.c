@@ -809,9 +809,9 @@ void backward_network_gpu(network *netp)
             net.delta_gpu = prev.delta_gpu;
         }
         net.index = i;
-        do_load(l, net);
+        do_load_layer(l, net);
         l.backward_gpu(l, net);
-        do_unload(l, net);
+        do_unload_layer(l, net);
     }
 }
 
